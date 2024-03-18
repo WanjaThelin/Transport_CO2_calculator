@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transport Emissions Calculator</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Add CSS for styling if needed -->
+</head>
+<body>
+    <h2>Transport Emissions Calculator</h2>
+    <form id="emissionsForm">
+        <label for="population">City Population:</label><br>
+        <input type="number" id="population" name="population" value="100000"><br>
+
+        <label for="bus_capacity">% Bus Capacity Utilization:</label><br>
+        <input type="number" id="bus_capacity" name="bus_capacity" value="70" min="1" max="100"><br>
+
+        <label for="person_per_car">% Passengers per car:</label><br>
+        <input type="number" id="person_per_car" name="person_per_car" value="1.5" min="1" max="5"><br>
+
+        <label for="bus_fuel_type">Bus Fuel Type:</label><br>
+        <select name="bus_fuel_type" id="bus_fuel_type">
+            <option value="diesel">Diesel</option>
+            <option value="electric">Electric</option>
+            <option value="biogas">Biogas</option>
+        </select><br>
+
+        <label>Electric Cars (%):</label><br>
+        <input type="range" id="percent_electric_cars" name="percent_electric_cars" value="0" min="0" max="100"><br>
+        <span id="electric_car_percentage_label">0</span>%<br>
+
+        <label>Car Usage (%):</label><br>
+        <input type="range" id="percent_cars" name="percent_cars" value="50" min="0" max="100"><br>
+        <span id="car_percentage_label">50</span>%<br>
+
+        <label>Bicycle Usage (%):</label><br>
+        <input type="range" id="percent_bicycles" name="percent_bicycles" value="0" min="0" max="100"><br>
+        <span id="percent_bicycles_label">0</span>%<br><br>
+
+        <button type="button" onclick="calculateEmissionsAndEnergy()">Calculate</button>
+
+	<div id="graph" style="width:100%;max-width:600px;height:400px;"></div>
+
+    </form>
+    <div id="results"></div>
+
+    <script>
+        // Function to update range value labels
+        document.getElementById('percent_electric_cars').oninput = function() {
+            document.getElementById('electric_car_percentage_label').innerText = this.value;
+        }
+        document.getElementById('percent_cars').oninput = function() {
+            document.getElementById('car_percentage_label').innerText = this.value;
+        }
+        document.getElementById('percent_bicycles').oninput = function() {
+            document.getElementById('percent_bicycles_label').innerText = this.value;
+        }
+
+function calculateEmissionsAndEnergy() {
+    const population = parseInt(document.getElementById('population').value, 10);
+    const percentCars = parseFloat(document.getElementById('percent_cars').value);
+    const personPerCar = parseFloat(document.getElementById('person_per_car').value);
+    const busCapacity = parseFloat(document.getElementById('bus_capacity').value);
+    const busFuelType = document.getElementById('bus_fuel_type').value;
+    const percentElectricCars = parseFloat(document.getElementById('percent_electric_cars').value);
+    const percentBicycles = parseFloat(document.getElementById('percent_bicycles').value);
+
+    // Emissions factors and consumption per 100km
+    const emissionsFactors = {
+        car_gasoline: 2660,   // g/liter
+        car_electric: 93.21,  // Assuming the emissions from electricity generation
+        bus_diesel: 2700,     // g/liter
+        bus_electric: 93.21,  // Assuming the emissions from electricity generation g/kWh
+        bus_biogas: 20,       // g/kWh
+    };
+
+    const consumptionPer100km = {
+        car_gasoline: 7,    // For gasoline cars l/100km
+        car_electric: 20,   // kWh per 100 km
+        bus_diesel: 30,     // For diesel buses l/100km
+        bus_biogas: 650,    // kWh/100km
+        bus_electric: 200,  // kWh per 100 km
+    };
+
+    // Calculate emissions based on the selected parameters
+    const carEmissionsPerKm = (percentElectricCars / 100) * emissionsFactors.car_electric * consumptionPer100km.car_electric / 100 +
+                              ((100 - percentElectricCars) / 100) * emissionsFactors.car_gasoline * consumptionPer100km.car_gasoline / 100;
+
+    const busEmissionsPerKm = emissionsFactors[`bus_${busFuelType}`] * consumptionPer100km[`bus_${busFuelType}`] / 100;
+
+    // Calculations
+    const busTrips = (population * (100 - percentCars) / 100) / (busCapacity / 100 * 40);
+    const carTrips = (population * percentCars / 100) / personPerCar;
+
+    const totalDistance = 30 * (1 - percentBicycles / 100);
+    const totalKmBus = busTrips * totalDistance;
+    const totalKmCar = carTrips * totalDistance;
+
+    // Total emissions
+    const totalBusEmissions = totalKmBus * busEmissionsPerKm; // in grams
+    const totalCarEmissions = totalKmCar * carEmissionsPerKm; // in grams
+    const totalEmissionsKg = ((totalBusEmissions + totalCarEmissions) / 1000000).toFixed(0); // Convert to kg and round
+
+    // Display the result
+    document.getElementById('results').innerHTML = `Total Emissions: ${totalEmissionsKg} tonnes CO2-eq`;
+
+    // Data for Plotly, using the corrected variables
+const trace1 = {
+    x: ['Emissions'],
+    y: [totalBusEmissions],
+    name: 'Bus Emissions',
+    type: 'bar',
+    marker: {color: 'rgb(55, 83, 109)'},
+};
+
+const trace2 = {
+    x: ['Emissions'],
+    y: [totalCarEmissions],
+    name: 'Car Emissions',
+    type: 'bar',
+    marker: {color: 'rgb(26, 118, 255)'},
+};
+
+const data = [trace1, trace2];
+
+const layout = {
+    barmode: 'stack',
+    title: 'Total CO2 Emissions by Source',
+    yaxis: {title: 'CO2 Emissions (kg)'},
+};
+
+Plotly.newPlot('graph', data, layout);
+}
+
+// Function to update range value labels as before
+
+    </script>
+</body>
+</html>
