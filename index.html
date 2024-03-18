@@ -4,11 +4,68 @@
     <meta charset="UTF-8">
     <title>Transport Emissions Calculator</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <!-- Add CSS for styling if needed -->
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f4f4;
+        }
+        .header {
+            background: #333;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .header img {
+            width: 200px; /* Adjust as needed */
+        }
+        .container {
+            padding: 20px;
+            margin: auto;
+            width: 80%;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label, input, select, button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        input[type=range] {
+            width: calc(100% - 50px);
+            display: inline-block;
+        }
+        span.percentage-label {
+            width: 30px;
+            display: inline-block;
+            text-align: center;
+        }
+        button {
+            padding: 10px;
+            background: #5cb85c;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #4cae4c;
+        }
+        #graph {
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            margin: auto;
+        }
+    </style>
 </head>
 <body>
-    <h2>Transport Emissions Calculator</h2>
-    <form id="emissionsForm">
+    <div class="header">
+        <img src="CO2logotype.png" alt="Logo" id="logo">
+        <h1>Transport Emissions Calculator</h1>
+    </div>
+    <div class="container">
+        <form id="emissionsForm">
         <label for="population">City Population:</label><br>
         <input type="number" id="population" name="population" value="100000"><br>
 
@@ -29,9 +86,12 @@
         <input type="range" id="percent_electric_cars" name="percent_electric_cars" value="0" min="0" max="100"><br>
         <span id="electric_car_percentage_label">0</span>%<br>
 
-        <label>Car Usage (%):</label><br>
-        <input type="range" id="percent_cars" name="percent_cars" value="50" min="0" max="100"><br>
-        <span id="car_percentage_label">50</span>%<br>
+        <label>Car Usage (%):</label>
+	<span id="car_percentage_label">50</span>%
+	<input type="range" id="percent_cars" name="percent_cars" value="50" min="0" max="100" oninput="updatePercentages(this.value)">
+	<label>Bus Usage (%):</label>
+	<span id="bus_percentage_label">50</span>%<br><br>
+
 
         <label>Bicycle Usage (%):</label><br>
         <input type="range" id="percent_bicycles" name="percent_bicycles" value="0" min="0" max="100"><br>
@@ -42,16 +102,22 @@
 	<div id="graph" style="width:100%;max-width:600px;height:400px;"></div>
 
     </form>
-    <div id="results"></div>
+     <div id="results"></div>
+     <div id="graph"></div>
 
     <script>
         // Function to update range value labels
         document.getElementById('percent_electric_cars').oninput = function() {
             document.getElementById('electric_car_percentage_label').innerText = this.value;
         }
-        document.getElementById('percent_cars').oninput = function() {
-            document.getElementById('car_percentage_label').innerText = this.value;
-        }
+        function updatePercentages(carPercent) {
+    		document.getElementById('car_percentage_label').innerText = carPercent;
+    		var busPercent = 100 - carPercent;
+    		document.getElementById('bus_percentage_label').innerText = busPercent;
+	}
+
+	// Initial call to set the initial values
+	updatePercentages(document.getElementById('percent_cars').value);
         document.getElementById('percent_bicycles').oninput = function() {
             document.getElementById('percent_bicycles_label').innerText = this.value;
         }
