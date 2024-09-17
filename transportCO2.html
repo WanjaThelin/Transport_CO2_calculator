@@ -97,9 +97,9 @@ function calculateEmissionsAndEnergy() {
     const totalKmCar = carTrips * totalDistance;
 
     // Total emissions
-    const totalBusEmissions = totalKmBus * busEmissionsPerKm; // in grams
-    const totalCarEmissions = totalKmCar * carEmissionsPerKm; // in grams
-    const totalEmissionsKg = ((totalBusEmissions + totalCarEmissions) / 1000000).toFixed(0); // Convert to kg and round
+    const totalBusEmissions = totalKmBus * busEmissionsPerKm/1000; // in grams
+    const totalCarEmissions = totalKmCar * carEmissionsPerKm/1000; // in grams
+    const totalEmissionsKg = ((totalBusEmissions + totalCarEmissions) / 1000).toFixed(0); // Convert to kg and round
 
     // Display the result
     document.getElementById('results').innerHTML = `Total Emissions: ${totalEmissionsKg} tonnes CO2-eq`;
