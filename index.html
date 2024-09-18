@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Transport Emissions Calculator</title>
+    <title>Utsläppskalkylator</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         body {
@@ -62,48 +62,49 @@
 <body>
     <div class="header">
         <img src="CO2logotype.png" alt="Logo" id="logo">
-        <h1>Transport Emissions Calculator</h1>
+        <h1>Utsläppskalkylator för transporter</h1>
     </div>
     <div class="container">
         <form id="emissionsForm">
-        <label for="population">City Population:</label><br>
+        <label for="population">Befolkningsmängd:</label><br>
         <input type="number" id="population" name="population" value="100000"><br>
 
-        <label for="bus_capacity">% Bus Capacity Utilization:</label><br>
+        <label for="bus_capacity">Andel upptagna platser på bussen (%):</label><br>
         <input type="number" id="bus_capacity" name="bus_capacity" value="70" min="1" max="100"><br>
 
-        <label for="person_per_car">% Passengers per car:</label><br>
+        <label for="person_per_car">Passagerare per bil:</label><br>
         <input type="number" id="person_per_car" name="person_per_car" value="1.5" min="1" max="5"><br>
 
-        <label for="bus_fuel_type">Bus Fuel Type:</label><br>
+        <label for="bus_fuel_type">Bussbränsle:</label><br>
         <select name="bus_fuel_type" id="bus_fuel_type">
             <option value="diesel">Diesel</option>
-            <option value="electric">Electric</option>
+            <option value="electric">El</option>
             <option value="biogas">Biogas</option>
         </select><br>
 
-        <label>Electric Cars (%):</label><br>
+        <label>Eldrivna bilar (%):</label><br>
         <input type="range" id="percent_electric_cars" name="percent_electric_cars" value="0" min="0" max="100"><br>
         <span id="electric_car_percentage_label">0</span>%<br>
 
-        <label>Car Usage (%):</label>
+        <label>Bilanvändning (%):</label>
 	<span id="car_percentage_label">50</span>%
 	<input type="range" id="percent_cars" name="percent_cars" value="50" min="0" max="100" oninput="updatePercentages(this.value)">
-	<label>Bus Usage (%):</label>
+	<label>Bussanvändning (%):</label>
 	<span id="bus_percentage_label">50</span>%<br><br>
 
 
-        <label>Bicycle Usage (%):</label><br>
+        <label>Andel cyklister (%):</label><br>
         <input type="range" id="percent_bicycles" name="percent_bicycles" value="0" min="0" max="100"><br>
         <span id="percent_bicycles_label">0</span>%<br><br>
 
-        <button type="button" onclick="calculateEmissionsAndEnergy()">Calculate</button>
+        <button type="button" onclick="calculateEmissionsAndEnergy()">Beräkna</button>
 
 	<div id="graph" style="width:100%;max-width:600px;height:400px;"></div>
-
+	
     </form>
      <div id="results"></div>
      <div id="graph"></div>
+
 
     <script>
         // Function to update range value labels
@@ -137,17 +138,18 @@ function calculateEmissionsAndEnergy() {
         car_electric: 93.21,  // Assuming the emissions from electricity generation
         bus_diesel: 2700,     // g/liter
         bus_electric: 93.21,  // Assuming the emissions from electricity generation g/kWh
-        bus_biogas: 20,       // g/kWh
+        bus_biogas: 40,       // g/km
     };
 
     const consumptionPer100km = {
         car_gasoline: 7,    // For gasoline cars l/100km
         car_electric: 20,   // kWh per 100 km
         bus_diesel: 30,     // For diesel buses l/100km
-        bus_biogas: 650,    // kWh/100km
+        bus_biogas: 100,    // km/100km
         bus_electric: 200,  // kWh per 100 km
     };
 
+	//biogas numbers https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2017/Mar/IRENA_Biogas_for_Road_Vehicles_2017.pdf
     // Calculate emissions based on the selected parameters
     const carEmissionsPerKm = (percentElectricCars / 100) * emissionsFactors.car_electric * consumptionPer100km.car_electric / 100 +
                               ((100 - percentElectricCars) / 100) * emissionsFactors.car_gasoline * consumptionPer100km.car_gasoline / 100;
@@ -163,26 +165,26 @@ function calculateEmissionsAndEnergy() {
     const totalKmCar = carTrips * totalDistance;
 
     // Total emissions
-    const totalBusEmissions = totalKmBus * busEmissionsPerKm; // in grams
-    const totalCarEmissions = totalKmCar * carEmissionsPerKm; // in grams
-    const totalEmissionsKg = ((totalBusEmissions + totalCarEmissions) / 1000000).toFixed(0); // Convert to kg and round
+    const totalBusEmissions = totalKmBus * busEmissionsPerKm/1000; // in grams
+    const totalCarEmissions = totalKmCar * carEmissionsPerKm/1000; // in grams
+    const totalEmissionsKg = ((totalBusEmissions + totalCarEmissions) / 1000).toFixed(0); // Convert to kg and round
 
     // Display the result
-    document.getElementById('results').innerHTML = `Total Emissions: ${totalEmissionsKg} tonnes CO2-eq`;
+    document.getElementById('results').innerHTML = `Totala utsläpp: ${totalEmissionsKg} ton CO2-eq`;
 
     // Data for Plotly, using the corrected variables
 const trace1 = {
-    x: ['Emissions'],
+    x: ['Utsläpp'],
     y: [totalBusEmissions],
-    name: 'Bus Emissions',
+    name: 'Bussutsläpp',
     type: 'bar',
     marker: {color: 'rgb(55, 83, 109)'},
 };
 
 const trace2 = {
-    x: ['Emissions'],
+    x: ['Utsläpp'],
     y: [totalCarEmissions],
-    name: 'Car Emissions',
+    name: 'Bilutsläpp',
     type: 'bar',
     marker: {color: 'rgb(26, 118, 255)'},
 };
@@ -191,8 +193,8 @@ const data = [trace1, trace2];
 
 const layout = {
     barmode: 'stack',
-    title: 'Total CO2 Emissions by Source',
-    yaxis: {title: 'CO2 Emissions (kg)'},
+    title: 'Totala CO2-utsläpp per transportslag',
+    yaxis: {title: 'CO2-ekvivalenter (kg)'},
 };
 
 Plotly.newPlot('graph', data, layout);
