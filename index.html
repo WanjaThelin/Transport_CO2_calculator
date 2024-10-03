@@ -134,19 +134,19 @@ function calculateEmissionsAndEnergy() {
 
     // Emissions factors and consumption per 100km
     const emissionsFactors = {
-        car_gasoline: 2660,   // g/liter
-        car_electric: 93.21,  // Assuming the emissions from electricity generation
-        bus_diesel: 2700,     // g/liter
-        bus_electric: 93.21,  // Assuming the emissions from electricity generation g/kWh
-        bus_biogas: 40,       // g/km
+        car_gasoline: 2360,   // g/liter https://www.naturvardsverket.se/contentassets/59e0e8e69b5447c0bddb5c91414fe97c/978-91-620-7027-4.pdf
+        car_electric: 90,  // Assuming the emissions from electricity generation https://www.naturvardsverket.se/4a6ac7/globalassets/amnen/klimat/klimatklivet/vagledning-berakna-utslappsminskning-230915.pdf
+        bus_diesel: 2540,     // g/liter https://www.naturvardsverket.se/contentassets/59e0e8e69b5447c0bddb5c91414fe97c/978-91-620-7027-4.pdf
+        bus_electric: 90,  // Assuming the emissions from electricity generation g/kWh
+        bus_biogas: 0.6,       // g/MJ https://www.energigas.se/fakta-om-gas/biogas/biogas-och-miljon/biogasens-klimatprestanda/
     };
 
     const consumptionPer100km = {
-        car_gasoline: 70,    // For gasoline cars l/100km
+        car_gasoline: 7,    // For gasoline cars l/100km
         car_electric: 20,   // kWh per 100 km
-        bus_diesel: 30,     // For diesel buses l/100km
-        bus_biogas: 100,    // km/100km
-        bus_electric: 200,  // kWh per 100 km
+        bus_diesel: 30,     // For diesel buses l/100km https://www.nyteknik.se/energi/hybridbuss-gar-en-mil-pa-tva-liter/1086929  https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.transportforetagen.se/contentassets/a9ca2435358e4cf3b5a2a1c573147d89/fragor-och-svar-turistbussens-klimatpaverkan.docx&ved=2ahUKEwixnMHY2vGIAxW2CRAIHU6DDCQQFnoECB0QAw&usg=AOvVaw2ReMENy21Cq61CzO92jYYb
+        bus_biogas: 21.5,    // MJ/km 					https://www.2050.se/wp-content/uploads/2018/06/energieffektiviteten-i-gasbussar.pdf
+        bus_electric: 110,  // kWh per 100 km		https://research.chalmers.se/publication/254814/file/254814_Fulltext.pdf
     };
 
 	//biogas numbers https://www.irena.org/-/media/Files/IRENA/Agency/Publication/2017/Mar/IRENA_Biogas_for_Road_Vehicles_2017.pdf
